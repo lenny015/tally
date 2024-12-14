@@ -21,9 +21,9 @@ def db_init():
         
         cursor.execute("""
                     CREATE TABLE IF NOT EXISTS users (
-                        user_id TEXT,
-                        guild_id TEXT,
-                        channel_id TEXT,
+                        user_id TEXT NOT NULL,
+                        guild_id TEXT NOT NULL,
+                        channel_id TEXT NOT NULL,
                         counted_numbers INTEGER DEFAULT 0,
                         PRIMARY KEY (user_id, guild_id, channel_id),
                         FOREIGN KEY (guild_id) REFERENCES guilds(guild_id)
@@ -101,7 +101,7 @@ def get_leaderboard(guild_id):
     cursor = conn.cursor()
     
     cursor.execute("""
-                   SELECT user_id, counted_numbers FROM users WHERE guild_id = ? ORDER BY counted_numbers DESC
+                   SELECT user_id, SUM(counted_numbers) AS total FROM users WHERE guild_id = ? ORDER BY counted_numbers DESC
                    """, (guild_id,))
     
     result = cursor.fetchall()
@@ -131,7 +131,6 @@ def validate_channels(bot: Bot):
                 cursor.execute("""
                                DELETE FROM users WHERE channel_id = ?
                                """,(channel_id,))
-                print(f"{channel_id} not in server")
         except Exception as e:
             print(f"Channel validation error on channel ID {channel_id}: {e}")
     
@@ -164,8 +163,6 @@ def check_count_channel(channel_id):
     cursor.execute("""
                    SELECT channel_id FROM channels WHERE channel_id = ?
                    """,(channel_id,))
-    
-    print(f"Deleting channel {channel_id}")
     
     result = cursor.fetchone()
     conn.close()

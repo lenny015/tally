@@ -32,7 +32,6 @@ async def on_guild_channel_delete(channel):
     if check_count_channel(str(channel.id)):
         delete_channel(str(channel.id))
     
-
 @bot.tree.command(name="create-channel", description="Create a new moderated counting channel")
 async def create_channel(interaction: discord.Interaction, name: str = "counting"):
     await interaction.response.defer()
@@ -76,8 +75,10 @@ async def leaderboard(interaction: discord.Interaction):
     guild_id = str(interaction.guild.id)
     leaderboard = get_leaderboard(guild_id)
     
-    if not leaderboard:
-        await interaction.response.send_message("No users have counted yet.")
+    if not leaderboard or leaderboard[0] == (None, None):
+        em = discord.Embed(color=discord.Color.red())
+        em.add_field(name="No users have counted yet.", value="")
+        await interaction.response.send_message(embed=em)
     else:
         em = discord.Embed(
             title =  f'Top 10 Counters in {interaction.guild.name}',
@@ -88,6 +89,9 @@ async def leaderboard(interaction: discord.Interaction):
         medals = [':first_place:', ':second_place:', ':third_place:']
         
         for user_id, count in leaderboard:
+            if user_id is None:
+                continue
+            
             member = interaction.guild.get_member(int(user_id))
             
             if member:

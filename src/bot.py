@@ -4,6 +4,7 @@ import discord
 from discord.ext import commands
 from database import db_init, insert_guild, get_current_number, update_channel, update_user_count, get_leaderboard, validate_channels, delete_channel, check_count_channel
 from dotenv import load_dotenv
+from time import sleep
 
 load_dotenv()
 
@@ -66,6 +67,8 @@ async def on_message(message):
                 update_user_count(str(message.author.id), guild_id, channel_id)
             else:
                 await message.add_reaction("❌")
+                sleep(0.3)
+                await message.delete()
              
     await bot.process_commands(message)
     

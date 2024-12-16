@@ -70,6 +70,11 @@ async def on_message(message):
                 await message.add_reaction("❌")
                 sleep(0.3)
                 await message.delete()
+        else:
+            await message.add_reaction("❌")
+            sleep(0.3)
+            await message.delete()
+            
              
     await bot.process_commands(message)
     

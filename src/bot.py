@@ -2,7 +2,7 @@ import os
 import re
 import discord
 from discord.ext import commands
-from database import db_init, insert_guild, get_current_number, update_channel, update_user_count, get_leaderboard, validate_channels, delete_channel, check_count_channel
+from database import db_init, insert_guild, get_current_number, update_channel, update_user_count, get_leaderboard, validate_channels, delete_channel, check_count_channel, get_last_user
 from dotenv import load_dotenv
 from time import sleep
 
@@ -54,6 +54,7 @@ async def on_message(message):
     
     channel_id = str(message.channel.id)
     guild_id = str(message.guild.id)
+    author_id = str(message.author.id)
     
     current_num = get_current_number(channel_id)
     if current_num is not None:
@@ -61,10 +62,10 @@ async def on_message(message):
         if match:
             num = int(match.group(1))
             
-            if num == current_num:
+            if num == current_num and (author_id != get_last_user(channel_id)):
                 await message.add_reaction("✅")
-                update_channel(channel_id, current_num + 1)
-                update_user_count(str(message.author.id), guild_id, channel_id)
+                update_channel(channel_id, current_num + 1, message.author.id)
+                update_user_count(author_id, guild_id, channel_id)
             else:
                 await message.add_reaction("❌")
                 sleep(0.3)

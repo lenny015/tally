@@ -34,7 +34,8 @@ def db_init():
                     CREATE TABLE IF NOT EXISTS channels (
                             channel_id TEXT PRIMARY KEY,
                             guild_id TEXT,
-                            current_number INTEGER DEFAULT 1
+                            current_number INTEGER DEFAULT 1,
+                            last_user TEXT NOT NULL DEFAULT ''
                         )
                     """)
         
@@ -72,14 +73,14 @@ def get_current_number(channel_id):
     else:
         return None
     
-def update_channel(channel_id, next_num):
+def update_channel(channel_id, next_num, user_id=None):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     
     cursor.execute("""
-                   INSERT OR REPLACE INTO channels (channel_id, guild_id, current_number)
-                   VALUES (?, (SELECT guild_id FROM guilds where counting_channel_id = ?), ?)
-                   """, (channel_id, channel_id, next_num))
+                   INSERT OR REPLACE INTO channels (channel_id, guild_id, current_number, last_user)
+                   VALUES (?, (SELECT guild_id FROM guilds where counting_channel_id = ?), ?, ?)
+                   """, (channel_id, channel_id, next_num, user_id))
     
     conn.commit()
     conn.close()
@@ -168,3 +169,16 @@ def check_count_channel(channel_id):
     conn.close()
     
     return result
+
+def get_last_user(channel_id):
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+                   SELECT last_user FROM channels WHERE channel_id = ?
+                   """,(channel_id,))
+    
+    result = cursor.fetchone()
+    conn.close()
+    
+    return result[0]

@@ -53,6 +53,9 @@ async def create_channel(interaction: discord.Interaction, name: str = "counting
     
     try:
         channel = await guild.create_text_channel(name=name, category=category, slowmode_delay=300)
+        
+        await channel.edit(position=0)
+        
         insert_guild(str(guild.id), str(channel.id))
         update_channel(channel.id, 1)
         await interaction.followup.send(f"Created channel {channel.mention}.")

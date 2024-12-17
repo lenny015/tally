@@ -167,8 +167,6 @@ def check_count_channel(channel_id):
     
     result = cursor.fetchone()
     conn.close()
-    
-    print(result)
     return result
 
 def get_last_user(channel_id):
@@ -183,3 +181,18 @@ def get_last_user(channel_id):
     conn.close()
     
     return result[0]
+
+def get_channels_from_guild(guild_id):
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+                   SELECT channel_id FROM channels WHERE guild_id = ?
+                   """,(guild_id,))
+    
+    result = cursor.fetchall()
+    conn.close()
+    
+    return result
+    
+    

@@ -11,9 +11,11 @@ from database import (db_init,
                       validate_channels,
                       delete_channel,
                       check_count_channel,
-                      get_last_user)
+                      get_last_user,
+                      get_channels_from_guild)
 from dotenv import load_dotenv
 from time import sleep
+from typing import List
 
 load_dotenv()
 
@@ -128,21 +130,33 @@ async def leaderboard(interaction: discord.Interaction):
         await interaction.response.send_message(embed=em)
         
 @bot.tree.command(name="current-number", description="Get the current number of a counting channel")
-async def current_number(interaction: discord.Interaction, channel: discord.TextChannel):
+async def current_number(interaction: discord.Interaction, channel: str):
     
-    channel_id = str(channel.id)
+    ch = interaction.guild.get_channel(int(channel))
     
-    if check_count_channel(channel_id) != None:
-        curr = get_current_number(channel_id)
+    if check_count_channel(channel) != None:
+        curr = get_current_number(channel)
         em = discord.Embed(color=discord.Color.blue())
-        em.add_field(name=f"The current number in {channel.mention} is {curr}", value="")
+        em.add_field(name=f"The current number in {ch.mention} is {curr}", value="")
         
         await interaction.response.send_message(embed=em)
     else:
         em = discord.Embed(color=discord.Color.red())
-        em.add_field(name=f"{channel.mention} is not a counting channel.", value="")
+        em.add_field(name=f"{ch.mention} is not a counting channel.", value="")
         await interaction.response.send_message(embed=em)
+        
+@current_number.autocomplete("channel")
+async def counting_channels(interaction: discord.Interaction, channel_choices: str) -> List[discord.app_commands.Choice]:
+    guild_id = str(interaction.guild.id)
+    guild_channels = get_channels_from_guild(guild_id)
     
+    choices = []
+    for channel_id in guild_channels:
+        channel = interaction.guild.get_channel(int(channel_id[0]))
+        if isinstance(channel, discord.TextChannel):
+            choices.append(discord.app_commands.Choice(name=channel.name, value=str(channel.id)))
+            
+    return choices
     
 if __name__ == "__main__":
     bot.run(TOKEN)

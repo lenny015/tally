@@ -90,7 +90,7 @@ def update_user_count(user_id, guild_id, channel_id):
     cursor = conn.cursor()
     
     cursor.execute("""
-                   INSERT INTO users (user_id, guild_id, channel_id, counted_numbers) VALUES (?, ?, ?,1)
+                   INSERT INTO users (user_id, guild_id, channel_id, counted_numbers) VALUES (?, ?, ?, 1)
                    ON CONFLICT(user_id, guild_id, channel_id) DO UPDATE SET counted_numbers = counted_numbers + 1
                    """, (user_id, guild_id, channel_id))
     
@@ -102,7 +102,7 @@ def get_leaderboard(guild_id):
     cursor = conn.cursor()
     
     cursor.execute("""
-                   SELECT user_id, SUM(counted_numbers) AS total FROM users WHERE guild_id = ? ORDER BY counted_numbers DESC
+                   SELECT user_id, SUM(counted_numbers) AS total FROM users WHERE guild_id = ? GROUP BY user_id ORDER BY counted_numbers DESC
                    """, (guild_id,))
     
     result = cursor.fetchall()

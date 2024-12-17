@@ -68,7 +68,7 @@ async def on_message(message):
     guild_id = str(message.guild.id)
     author_id = str(message.author.id)
     
-    current_num = get_current_number(channel_id)
+    current_num = get_current_number(channel_id) + 1
     if current_num is not None:
         match = re.match(r'^(\d+)(?:\s.*)?$', message.content)
         if match:

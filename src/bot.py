@@ -2,7 +2,16 @@ import os
 import re
 import discord
 from discord.ext import commands
-from database import db_init, insert_guild, get_current_number, update_channel, update_user_count, get_leaderboard, validate_channels, delete_channel, check_count_channel, get_last_user
+from database import (db_init,
+                      insert_guild,
+                      get_current_number,
+                      update_channel,
+                      update_user_count,
+                      get_leaderboard,
+                      validate_channels,
+                      delete_channel,
+                      check_count_channel,
+                      get_last_user)
 from dotenv import load_dotenv
 from time import sleep
 
@@ -34,6 +43,7 @@ async def on_guild_channel_delete(channel):
         delete_channel(str(channel.id))
     
 @bot.tree.command(name="create-channel", description="Create a new moderated counting channel")
+@discord.app_commands.describe(name='Gives the new counting channel a name. Defaults to "counting"')
 async def create_channel(interaction: discord.Interaction, name: str = "counting"):
     await interaction.response.defer()
     guild = interaction.guild
@@ -43,7 +53,7 @@ async def create_channel(interaction: discord.Interaction, name: str = "counting
         channel = await guild.create_text_channel(name=name, category=category, slowmode_delay=300)
         insert_guild(str(guild.id), str(channel.id))
         update_channel(channel.id, 1)
-        await interaction.followup.send(f"Created channel {channel.mention}")
+        await interaction.followup.send(f"Created channel {channel.mention}.")
     except Exception as e:
         await interaction.followup.send(f"Failed to create channel: `{e}`")
         
@@ -115,6 +125,22 @@ async def leaderboard(interaction: discord.Interaction):
                 break
             index += 1
         
+        await interaction.response.send_message(embed=em)
+        
+@bot.tree.command(name="current-number", description="Get the current number of a counting channel")
+async def current_number(interaction: discord.Interaction, channel: discord.TextChannel):
+    
+    channel_id = str(channel.id)
+    
+    if check_count_channel(channel_id) != None:
+        curr = get_current_number(channel_id)
+        em = discord.Embed(color=discord.Color.blue())
+        em.add_field(name=f"The current number in {channel.mention} is {curr}", value="")
+        
+        await interaction.response.send_message(embed=em)
+    else:
+        em = discord.Embed(color=discord.Color.red())
+        em.add_field(name=f"{channel.mention} is not a counting channel.", value="")
         await interaction.response.send_message(embed=em)
     
     

@@ -69,7 +69,7 @@ def get_current_number(channel_id):
     conn.close()
     
     if result:
-        return result[0]
+        return result[0] - 1
     else:
         return None
     
@@ -168,6 +168,7 @@ def check_count_channel(channel_id):
     result = cursor.fetchone()
     conn.close()
     
+    print(result)
     return result
 
 def get_last_user(channel_id):

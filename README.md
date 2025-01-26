@@ -26,13 +26,19 @@ Create virtual environment (recommended)
 
 ```bash
 # Windows
-python -m venv env
+python3 -m venv env
 env/Scripts/activate
 ```
 
 ```bash
 # macOS/Linux
 source env/bin/activate
+```
+
+Install dependencies
+
+```bash
+python3 -m pip install -r requirements.txt
 ```
 
 Rename `.envsample` to `.env`
@@ -42,7 +48,7 @@ BOT_TOKEN=INSERT_TOKEN_HERE
 
 Starting the application
 ```
-py src/bot.py
+python3 src/bot.py
 ```
 
 
